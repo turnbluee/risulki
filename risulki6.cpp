@@ -159,33 +159,38 @@ void DrawMountains (double mount_x1, double mount_x2, double mount_x3, double mo
     SnowPoints (mount_x2, MountainsCoordinates, 3, snowcol);
 
     SnowPoints (mount_x3, MountainsCoordinates, 5, snowcol);
-    DrawFunicular (peak_x[2], peak_y[2]);
+    DrawFunicular (peak_x[2], peak_y[2], MountainsCoordinates[4][1], MountainsCoordinates[4][1]);
 
     SnowPoints (mount_x4, MountainsCoordinates, 7, snowcol);
     }
 
-void DrawFunicular (double PeakX, double PeakY)
+void DrawFunicular (double PeakX, double PeakY, double LowlandX, double LowlandY)
     {
     txSetColor (TX_BLACK, 1);
     txSetFillColor (TX_BLACK);
 
-    double MountainDeltaX = PeakX - 400;
-    double MountainDeltaY = 270 - PeakY;
-    double RopeLength = 0.73 * sqrt (pow (MountainDeltaX, 2) + pow (MountainDeltaY, 2));
+    double MountainDeltaX = PeakX - LowlandX;
+    double MountainDeltaY = LowlandY - PeakY;
+	double RopeRatio = 0.73;
+    double RopeLength = RopeRatio * sqrt (pow (MountainDeltaX, 2) + pow (MountainDeltaY, 2));
 
     double FunicularAngle = atan (MountainDeltaY / MountainDeltaX);
     double RopeEndX = RopeLength * cos (FunicularAngle);
     double RopeEndY = RopeLength * sin (FunicularAngle);
+	double FirstPillarBaseX = LowlandX + 5;
+	double FirstPillarBaseY = LowlandY - 5 * FunicularAngle;
+	double PillarHigh = 25;
 
-    txLine (405, 239, 405 + RopeEndX, 239 - RopeEndY);
+    txLine (FirstPillarBaseX, 			 FirstPillarBaseY - PillarHigh, 
+			FirstPillarBaseX + RopeEndX, FirstPillarBaseY - PillarHigh - RopeEndY);
 
 
     for (double PillarRatio = 0; PillarRatio < 1; PillarRatio += 0.3)
         {
         double PillarLength = 25;
 
-        double PillarX = 405 + RopeEndX * PillarRatio;
-        double PillarY = 239 - RopeEndY * PillarRatio;
+        double PillarX = FirstPillarBase + RopeEndX * PillarRatio;
+        double PillarY = FirstPillarBaseY - PillarHigh - RopeEndY * PillarRatio;
 
         txLine (PillarX, PillarY, PillarX, PillarY + PillarLength);
         }
@@ -200,11 +205,14 @@ void DrawFunicular (double PeakX, double PeakY)
             }
         }
 
-    txLine (405 + RopeEndX, 239 - RopeEndY,      405 + RopeEndX + 10, 239 - RopeEndY);
-    txLine (405 + RopeEndX, 239 - RopeEndY + 15, 405 + RopeEndX,      239 - RopeEndY + 25);
+    txLine (FirstPillarBase + RopeEndX, 	 FirstPillarBaseY - PillarHigh - RopeEndY,
+			FirstPillarBase + RopeEndX + 10, FirstPillarBaseY - PillarHigh - RopeEndY);
+    txLine (FirstPillarBase + RopeEndX, FirstPillarBaseY - PillarHigh - RopeEndY + 15,
+			FirstPillarBase + RopeEndX, FirstPillarBaseY - PillarHigh - RopeEndY + 25);
 
     double PlatformWidth = 10 / tan (FunicularAngle);
-    txLine (405 + RopeEndX, 239 - RopeEndY + 15, 405 + RopeEndX + PlatformWidth, 239 - RopeEndY + 15);
+    txLine (FirstPillarBase + RopeEndX, 				FirstPillarBaseY - PillarHigh - RopeEndY + 15,
+			FirstPillarBase + RopeEndX + PlatformWidth, FirstPillarBaseY - PillarHigh - RopeEndY + 15);
 
     double CabinRatio = 1;
     RopeEndX += 3;
