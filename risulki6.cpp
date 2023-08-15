@@ -294,9 +294,9 @@ void DrawBase (double x, double y, double scale, double RoofAngle, COLORREF hous
     txSetColor (door);
     txSetFillColor (house);
 	
-	double BaseWidth = 250;
-	double BaseHigh = 220;
-    txRectangle (x, y, x + BaseWidth * scale, y + BaseHigh * scale);
+	double Width = 250;
+	double High = 220;
+    txRectangle (x, y, x + Width * scale, y + High * scale);
 
     RoofAngle = 3.141592 / 2 - RoofAngle / 2;
     POINT attic[3] = {{x, y}, {x + 250 * scale / 2, y - tan (RoofAngle) * 250 * scale / 2}, {x + 250 * scale, y}};
@@ -307,20 +307,27 @@ void DrawDoor (double x, double y, double scale, COLORREF door)
 {
     txSetColor (door);
     txSetFillColor (door);
-
-    x += 110 * scale;
-    y += 80  * scale;
-    txRectangle (x, y, x + 70 * scale, y + 130 * scale);
+	
+	double DoorPlaceX = x + 110 * scale;
+	double DoorPlaceY = y + 80 * scale;
+	
+	double width = 70 * scale;
+	double high = 130 * scale;
+    txRectangle (DoorPlaceX, 		 DoorPlaceY,
+				 DoorPlaceX + width, DoorPlaceY + high);
 }
 
 void DrawWindow (double x, double y, double scale,
-                 COLORREF window, COLORREF cross, COLORREF door)
+	COLORREF window, COLORREF cross, COLORREF door)
 {
     txSetFillColor (window);
     txSetColor (door);
-    x += 20 * scale;
-    y += 70 * scale;
-    txRectangle (x, y, x + 70 * scale, y + 110 * scale);
+	double WindowPlaceX = x + 20 * scale;
+	double WindowPlaceY = y + 70 * scale;
+	double width = 70 * scale;
+	double high = 110 * scale;
+    txRectangle (WindowPlaceX, 		   WindowPlaceY,
+				 WindowPlaceX + width, WindowPlaceY + high);
 
     txSetColor (cross);
     txLine (x + 35 * scale, y,              x + 35 * scale, y + 110 * scale);
