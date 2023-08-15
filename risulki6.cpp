@@ -10,11 +10,11 @@ void DrawGround ();
 void DrawMountains (double mount_x1, double mount_x2, double mount_x3, double mount_x4,
     COLORREF snowcol, COLORREF mountcol);
 
-void DrawFunicular (double peak_x, double peak_y);
+void DrawFunicular (double PeakX, double PeakY, double LowlandX, double LowlandY)
 
-void SnowPoints (double FirstSnowX, double MountainsCoordinates[8][2], int MountainsDotNumber, COLORREF snowcol);
+void DrawSnow (double FirstSnowX, double MountainsCoordinates[8][2], int MountainsDotNumber, COLORREF snowcol);
 
-void DrawCabin (double ropex, double ropey, double CabRatio);
+void DrawCabin (double RopeEndX, double RopeEndY, double CabinRatio, double LowlandX, double LowlandY)
 
 void DrawHouse (double x, double y, double scale, double ang, COLORREF house, COLORREF door,
     COLORREF window, COLORREF cross);
@@ -154,14 +154,14 @@ void DrawMountains (double mount_x1, double mount_x2, double mount_x3, double mo
     MountainsCoordinates[8][0] = 270;
     MountainsCoordinates[8][1] = 950;
 
-    SnowPoints (mount_x1, MountainsCoordinates, 1, snowcol);
+    DrawSnow (mount_x1, MountainsCoordinates, 1, snowcol);
 
-    SnowPoints (mount_x2, MountainsCoordinates, 3, snowcol);
+    DrawSnow (mount_x2, MountainsCoordinates, 3, snowcol);
 
-    SnowPoints (mount_x3, MountainsCoordinates, 5, snowcol);
+    DrawSnow (mount_x3, MountainsCoordinates, 5, snowcol);
     DrawFunicular (peak_x[2], peak_y[2], MountainsCoordinates[4][1], MountainsCoordinates[4][1]);
 
-    SnowPoints (mount_x4, MountainsCoordinates, 7, snowcol);
+    DrawSnow (mount_x4, MountainsCoordinates, 7, snowcol);
     }
 
 void DrawFunicular (double PeakX, double PeakY, double LowlandX, double LowlandY)
@@ -187,122 +187,119 @@ void DrawFunicular (double PeakX, double PeakY, double LowlandX, double LowlandY
 
     for (double PillarRatio = 0; PillarRatio < 1; PillarRatio += 0.3)
         {
-        double PillarLength = 25;
+        double PillarX = FirstPillarBaseX + RopeEndX * PillarRatio;
+        double PillarY = FirstPillarBaseY - RopeEndY * PillarRatio;
 
-        double PillarX = FirstPillarBase + RopeEndX * PillarRatio;
-        double PillarY = FirstPillarBaseY - PillarHigh - RopeEndY * PillarRatio;
-
-        txLine (PillarX, PillarY, PillarX, PillarY + PillarLength);
+        txLine (PillarX, PillarY, PillarX, PillarY - PillarHigh);
         }
 
     for (double CabinRatio = 0.1; CabinRatio < 0.9; CabinRatio += 0.1)
         {
-        if ((0.28 >= CabinRatio || CabinRatio >= 0.32) &&
-            (0.58 >= CabinRatio || CabinRatio >= 0.62) &&
-            (0.88 >= CabinRatio || CabinRatio >= 0.92))
+        if ((CabinRatio <= 0.28 || 0.32 <= CabinRatio) &&
+            (CabinRatio <= 0.58 || 0.62 <= CabinRatio) &&
+            (CabinRatio <= 0.88 || 0.92 <= CabinRatio))
             {
             DrawCabin (RopeEndX, RopeEndY, CabinRatio);
             }
         }
-
-    txLine (FirstPillarBase + RopeEndX, 	 FirstPillarBaseY - PillarHigh - RopeEndY,
-			FirstPillarBase + RopeEndX + 10, FirstPillarBaseY - PillarHigh - RopeEndY);
-    txLine (FirstPillarBase + RopeEndX, FirstPillarBaseY - PillarHigh - RopeEndY + 15,
-			FirstPillarBase + RopeEndX, FirstPillarBaseY - PillarHigh - RopeEndY + 25);
-
-    double PlatformWidth = 10 / tan (FunicularAngle);
+	
+	double PlatformHigh = 10;
+	txLine (FirstPillarBase + RopeEndX, FirstPillarBaseY - RopeEndY,
+			FirstPillarBase + RopeEndX, FirstPillarBaseY - RopeEndY - PlatformHigh);
+	
+	double PlatformWidth = PlatformHigh / FunicularAngle;
+    txLine (FirstPillarBase + RopeEndX, 	 			FirstPillarBaseY - RopeEndY - PlatformHigh,
+			FirstPillarBase + RopeEndX + PlatformWidth, FirstPillarBaseY - RopeEndY - PlatformHigh);
+    
+	// мусор какой-то, хз, мб пригодится
+    /*double PlatformWidth = 10 / tan (FunicularAngle);
     txLine (FirstPillarBase + RopeEndX, 				FirstPillarBaseY - PillarHigh - RopeEndY + 15,
-			FirstPillarBase + RopeEndX + PlatformWidth, FirstPillarBaseY - PillarHigh - RopeEndY + 15);
+			FirstPillarBase + RopeEndX + PlatformWidth, FirstPillarBaseY - PillarHigh - RopeEndY + 15);*/
 
     double CabinRatio = 1;
     RopeEndX += 3;
-    DrawCabin (RopeEndX, RopeEndY, CabinRatio);
+    DrawCabin (RopeEndX, RopeEndY, CabinRatio, LowlandX, LowlandY);
 
     }
 
-void DrawCabin (double ropex, double ropey, double CabRatio)
+void DrawCabin (double RopeEndX, double RopeEndY, double CabinRatio, double LowlandX, double LowlandY)
     {
-    double cable = 10, CabHigh = 3, CabWidth = 6,                   // длина троса, высота, ширина кабины,
-    cabx = 405 + ropex * CabRatio, caby = 239 - ropey * CabRatio;   // координаты крепления троса
+    double CableLength = 10,
+	CabinHigh = 3,
+	CabinWidth = 6,                   		   // длина троса, высота, ширина кабины,
+    CabinX = LowlandX + RopeEndX * CabinRatio,
+	CabinY = LowlandY - RopeEndY * CabinRatio;   // координаты крепления троса
 
-    txLine (cabx, caby, cabx, caby + cable);
+    txLine (CabinX, CabinY,
+			CabinX, CabinY + CableLength);
 
-    txRectangle (cabx - CabWidth / 2, caby + cable, cabx + CabWidth / 2, caby + cable + CabHigh);
+    txRectangle (CabinX - CabinWidth / 2, CabinY + CableLength,
+				 CabinX + CabinWidth / 2, CabinY + CableLength + CabinHigh);
     }
 
-void SnowPoints (double FirstSnowX, double MountainsCoordinates[8][2], int MountainsDotNumber, COLORREF snowcol)
+void DrawSnow (double FirstSnowX, double MountainsCoordinates[8][2], int MountainsDotNumber, COLORREF snowcol)
     {
-    double
-    PeakAngle,
-    LeftAngle,
-    RightAngle,
-    SnowCoordinates[8][2],
-    AngleRatio[6] = {0.19, 0.14, 0.16, 0.15, 0.16, 0.2},
-    SnowCoordinatesDeltaX,
-    SnowCoordinatesDeltaY,
-    SnowPeakIntercept,
-    SnowSnowIntercept;
-
     txSetColor (snowcol);
     txSetFillColor (snowcol);
 
-    LeftAngle = atan ((MountainsCoordinates[MountainsDotNumber - 1][0] - MountainsCoordinates[MountainsDotNumber][0]) /
-    (MountainsCoordinates[MountainsDotNumber][1] - MountainsCoordinates[MountainsDotNumber - 1][1]));
+    double LeftAngle = atan ((MountainsCoordinates[MountainsDotNumber - 1][0] - MountainsCoordinates[MountainsDotNumber]	[0]) /
+							 (MountainsCoordinates[MountainsDotNumber]	  [1] - MountainsCoordinates[MountainsDotNumber - 1][1]));
+    double RightAngle = atan ((MountainsCoordinates[MountainsDotNumber + 1][0] - MountainsCoordinates[MountainsDotNumber][0]) /
+							  (MountainsCoordinates[MountainsDotNumber + 1][1] - MountainsCoordinates[MountainsDotNumber][1]));
+	double pi = 3.141592;
+	double PeakAngle = pi - LeftAngle - RightAngle;
+	
+	double SnowVertexCoordinates[8][2];
+    SnowVertexCoordinates[0][1] = FirstSnowX;
+    SnowVertexCoordinates[0][0] = MountainsCoordinates[MountainsDotNumber - 1][0] -
+			  (FirstSnowX - MountainsCoordinates[MountainsDotNumber - 1][1]) * tan (LeftAngle);
 
-    RightAngle = atan ((MountainsCoordinates[MountainsDotNumber + 1][0] - MountainsCoordinates[MountainsDotNumber][0]) /
-    (MountainsCoordinates[MountainsDotNumber + 1][1] - MountainsCoordinates[MountainsDotNumber][1]));
-
-    PeakAngle = 3.141592 - LeftAngle - RightAngle;
-
-    SnowCoordinates[0][1] = FirstSnowX;
-    SnowCoordinates[0][0] = MountainsCoordinates[MountainsDotNumber - 1][0] -
-        (FirstSnowX - MountainsCoordinates[MountainsDotNumber - 1][1]) * tan (LeftAngle);
-    cout << MountainsDotNumber;
-
-    double SnowLine = sqrt (pow(SnowCoordinates[0][1] - MountainsCoordinates[MountainsDotNumber][1], 2) +
-            pow(SnowCoordinates[0][0] - MountainsCoordinates[MountainsDotNumber][0], 2));
-
-    for (int i = 1; i < 7; ++i)
+    double SnowLineLength = sqrt (pow(SnowVertexCoordinates[0][1] - MountainsCoordinates[MountainsDotNumber][1], 2) +
+							pow(SnowVertexCoordinates[0][0] - MountainsCoordinates[MountainsDotNumber][0], 2));
+	
+	int SnowVertexes = 7;
+	double AngleRatio[6] = {0.19, 0.14, 0.16, 0.15, 0.16, 0.2};
+    for (int i = 1; i < SnowVertexes; ++i)
     {
         LeftAngle += PeakAngle * AngleRatio[i - 1];
-        SnowPeakIntercept = MountainsCoordinates[MountainsDotNumber][0] +
-            tan (LeftAngle) * MountainsCoordinates[MountainsDotNumber][1];
-
-        SnowCoordinates[i][1] = MountainsCoordinates[MountainsDotNumber][1] - SnowLine * cos (LeftAngle);
-        SnowCoordinates[i][0] = MountainsCoordinates[MountainsDotNumber][0] + SnowLine * sin (LeftAngle);
+		
+        SnowVertexCoordinates[i][1] = MountainsCoordinates[MountainsDotNumber][1] - SnowLineLength * cos (LeftAngle);
+        SnowVertexCoordinates[i][0] = MountainsCoordinates[MountainsDotNumber][0] + SnowLineLength * sin (LeftAngle);
     }
 
-
-    POINT snow[8];
-    for (int i = 0; i < 7; ++i)
+	int SnowVertexesAndPeak = SnowVertexes + 1;
+    POINT snow[SnowVertexesAndPeak];
+    for (int i = 0; i <= SnowVertexesAndPeak - 2; ++i)
         {
-        snow[i] = {SnowCoordinates[i][1], SnowCoordinates[i][0]};
+        snow[i] = {SnowVertexCoordinates[i][1], SnowVertexCoordinates[i][0]};
         }
 
-    snow[7] = {MountainsCoordinates[MountainsDotNumber][1], MountainsCoordinates[MountainsDotNumber][0]};
+    snow[SnowVertexesAndPeak - 1] = {MountainsCoordinates[MountainsDotNumber][1], MountainsCoordinates[MountainsDotNumber][0]};
 
     txPolygon (snow, 8);
     }
 
-void DrawHouse (double x, double y, double scale, double ang,
+void DrawHouse (double x, double y, double scale, double RoofAngle,
     COLORREF house, COLORREF door, COLORREF window, COLORREF cross)
     {
-    DrawBase (x, y, scale, ang, house, door);
+    DrawBase (x, y, scale, RoofAngle, house, door);
 
     DrawDoor (x, y, scale, door);
 
     DrawWindow (x, y, scale, window, cross, door);
     }
 
-void DrawBase (double x, double y, double scale, double ang, COLORREF house, COLORREF door)
+void DrawBase (double x, double y, double scale, double RoofAngle, COLORREF house, COLORREF door)
 {
     txSetColor (door);
     txSetFillColor (house);
+	
+	double BaseWidth = 250;
+	double BaseHigh = 220;
+    txRectangle (x, y, x + BaseWidth * scale, y + BaseHigh * scale);
 
-    txRectangle (x, y, x + 250 * scale, y + 220 * scale);
-
-    ang = 3.141592 / 2 - ang / 2;
-    POINT attic[3] = {{x, y}, {x + 250 * scale / 2, y - tan (ang) * 250 * scale / 2}, {x + 250 * scale, y}};
+    RoofAngle = 3.141592 / 2 - RoofAngle / 2;
+    POINT attic[3] = {{x, y}, {x + 250 * scale / 2, y - tan (RoofAngle) * 250 * scale / 2}, {x + 250 * scale, y}};
     txPolygon (attic, 3);
 }
 
