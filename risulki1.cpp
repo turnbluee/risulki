@@ -59,7 +59,7 @@ int main()
     DrawHouse (540, 320, 1, 120 * 3.141592 / 180,
         RGB (185, 122, 87), RGB (103, 65, 44), TX_GRAY, TX_BLACK);
 
-    //DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
+    DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
     /*DrawRobot (250, 370, 1,
         3.141592 * 1.5, 3.141592 * 1.5,
@@ -293,11 +293,14 @@ void DrawBase (double x, double y, double scale, double RoofAngle, COLORREF hous
 
 	double width = 250 * scale;
 	double high = 220 * scale;
-    txRectangle (x, y, x + width, y + high);
+    txRectangle (x,         y,
+                 x + width, y + high);
 
     double pi = 3.141592;
     RoofAngle = RoofAngle / 2;
-    POINT attic[3] = {{x, y}, {x + width / 2, y - width / 2 / tan (RoofAngle)}, {x + width, y}};
+    POINT attic[3] = {{x,             y},
+                      {x + width / 2, y - width / 2 / tan (RoofAngle)},
+                      {x + width,     y}};
     txPolygon (attic, 3);
 }
 
@@ -330,45 +333,48 @@ void DrawWindow (double x, double y, double scale,
     txSetColor (cross);
     txLine (WindowPlaceX + width / 2, WindowPlaceY,
             WindowPlaceX + width / 2, WindowPlaceY + high);
-    txLine (WindowPlaceX,        WindowPlaceY + high / 2,
+    txLine (WindowPlaceX,         WindowPlaceY + high / 2,
             WindowPlaceX + width, WindowPlaceY + high / 2);
 }
 
-void DrawSmokeTree (double x, double y, double rad, int density, double scale, COLORREF trunk, COLORREF crown)
+void DrawSmokeTree (double RootLeftPointX, double RootLeftPointY, double rad, int density, double scale, COLORREF trunk, COLORREF crown)
 {
     txSetColor     (trunk);
     txSetFillColor (trunk);
 
-    POINT TreeLeftSide[7] = {{x, y},
-							 {x + 45 * scale, y - 5 * scale},  {x + 50 * scale, y - 7 * scale},
-							 {x + 55 * scale, y - 10 * scale}, {x + 60 * scale, y - 20 * scale},
-							 {x + 65 * scale, y - 35 * scale}, {x + 65 * scale, y}};
-    txPolygon (TreeLeftSide, 7);
+    double RootWidth = 180 * scale;
+    double RootHigh = 20 * scale;
 
-    POINT TreeRightSide[7] = {{x + 185 * scale, y},             {x + 140 * scale, y - 5 * scale},
-							  {x + 135 * scale, y - 7 * scale}, {x + 130 * scale, y - 10 * scale},
-							  {x + 125 * scale, y - 20 * scale},{x + 120 * scale, y - 35 * scale},
-							  {x + 120 * scale, y}};
-    txPolygon (TreeRightSide, 7);
+    POINT Root[3] = {{RootLeftPointX,                 RootLeftPointY},
+                     {RootLeftPointX + RootWidth / 2, RootLeftPointY - RootHigh},
+                     {RootLeftPointX + RootWidth,     RootLeftPointY}};
+    txPolygon (Root, 3);
 
-    txRectangle (x + 65 * scale, y,
-				 x + 120 * scale, y - 325 * scale);
+
+    double TrunkWidth = 60 * scale;
+    double TrunkHigh = 325 * scale;
+
+    double TrunkCentreX = RootLeftPointX + RootWidth / 2 * scale;
+
+    double TrunkBottom = RootLeftPointY;
+    double TrunkTop = TrunkBottom - TrunkHigh * scale;
+
+    txRectangle (TrunkCentreX - TrunkWidth / 2, TrunkBottom,
+				 TrunkCentreX + TrunkWidth / 2, TrunkTop);
 
     txSetColor (crown);
     txSetFillColor (crown);
+    double pi = 3.131592;
+    double CrownAngle = 2 * pi / density;
 
-    txCircle (x + 92.5 * scale, y - 385 * scale, rad);
-
-    double ang = 2 * 3.131592 / density, crown_x, crown_y;
-    x += 92.5 * scale;
-    y -= 385 * scale;
+    txCircle (TrunkCentreX, TrunkTop, rad);
 
     for (int i = 0; i < density; ++i)
     {
-        crown_x = x + rad * cos (ang * i);
-        crown_y = y - rad * sin (ang * i);
+        double CrownX = TrunkCentreX + rad * cos (CrownAngle * i);
+        double CrownY = TrunkTop - rad * sin (CrownAngle * i);
 
-        txCircle (crown_x, crown_y, rad * 0.75);
+        txCircle (CrownX, CrownY, rad * 0.75);
     }
 }
 
