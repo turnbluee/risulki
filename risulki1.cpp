@@ -62,7 +62,7 @@ int main()
     DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
     DrawRobot (250, 370, 1,
-        3.141592 * 1.5, 3.141592 * 1.5,
+        3.141592 * 0.5, 3.141592 * 1.5,
         3.141592 * 1.5, 3.141592 * 1.5,
         RGB (200, 191, 223), TX_BLACK, TX_BLACK);
 
@@ -414,11 +414,22 @@ void DrawLA (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale,
 
     double ShoulderWidth = 20 * scale;
     double ShoulderHigh = 5 * scale;
-    double ArmWidth = 30 * scale;
+    double ArmWidth = 10 * scale;
     double ArmHigh = 90 * scale;
     double pi = 2 * asin (1);
-    LeftArmAngle = pi * 1.5;
-    cout << LeftArmAngle << ' ' << cos (3 * asin (1));
+    /*if (LeftArmAngle < pi)
+        {
+        LeftArmAngle = abs (pi / 2 - LeftArmAngle);
+        }
+    else
+        {
+        LeftArmAngle = abs (pi * 1.5 - LeftArmAngle);
+        }*/
+
+
+    //LeftArmAngle = pi * 1.5;
+    cout << LeftArmAngle << ' ' << cos (LeftArmAngle);
+
     double ShoulderCentreX = ShoulderLeftPointX + ShoulderWidth / 2;
     double ShoulderCentreY = ShoulderLeftPointY + ShoulderHigh / 2;
 
@@ -428,10 +439,12 @@ void DrawLA (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale,
     txCircle (ShoulderCentreX,
               ShoulderCentreY,
               ShoulderWidth / 2);
-    double LeftArmTopLeftX = ShoulderCentreX - ShoulderWidth / 2 * cos (LeftArmAngle);
-    double LeftArmTopLeftY = ShoulderCentreY - ShoulderWidth / 2 * sin (LeftArmAngle);
-    double LeftArmTopRightX = ShoulderCentreX + ShoulderWidth / 2 * cos (LeftArmAngle);
-    double LeftArmTopRightY = ShoulderCentreY + ShoulderWidth / 2 * sin (LeftArmAngle);
+    double ShoulderAngle = LeftArmAngle - pi / 2;
+    double LeftArmTopLeftX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle);
+    double LeftArmTopLeftY = ShoulderCentreY - ArmWidth / 2 * sin (ShoulderAngle);
+    double LeftArmTopRightX = ShoulderCentreX + ArmWidth / 2 * cos (ShoulderAngle);
+    double LeftArmTopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle);
+
 
 
     POINT LeftArm[4] = {{LeftArmTopLeftX,  LeftArmTopLeftY},
