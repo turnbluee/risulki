@@ -30,7 +30,7 @@ void DrawSmokeTree (double x, double y, double rad, int density, double scale, C
 void DrawRobot (double x, double y, double scale, double AngLA, double AngRA,
     double AngLL, double AngRL, COLORREF robot, COLORREF eyes, COLORREF smile);
 
-void DrawLA (double x, double y, double scale, double AngLA, COLORREF robot);
+void DrawLeftArm (double x, double y, double scale, double AngLA, COLORREF robot);
 
 void DrawRA (double x, double y, double scale, double AngRA, COLORREF robot);
 
@@ -62,7 +62,7 @@ int main()
     DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
     DrawRobot (250, 370, 1,
-        3.141592 * 0.5, 3.141592 * 1.5,
+        3.141592 * 1.5, 3.141592 * 1.5,
         3.141592 * 1.5, 3.141592 * 1.5,
         RGB (200, 191, 223), TX_BLACK, TX_BLACK);
 
@@ -387,7 +387,7 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, do
 
     txRectangle (x + 20 * scale, y + 100 * scale, x + 80  * scale, y); //
 
-    DrawLA (x, y, scale, AngLA, robot);
+    DrawLeftArm (x, y, scale, AngLA, robot);
 
     DrawRA (x, y, scale, AngRA, robot);
 
@@ -398,59 +398,39 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, do
     DrawSmile (x, y, scale, smile);
 }
 
-void DrawLA (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double LeftArmAngle, COLORREF robot)
+void DrawLeftArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double LeftArmAngle, COLORREF robot)
 {
     txSetColor     (robot);
     txSetFillColor (robot);
-
-    /*double l = 87.5 * scale;
-    txRectangle (x, y, x + 20 * scale, y +  5 * scale);
-
-    POINT LA[4] = {{x,              y +  2.5 * scale},
-                   {x + 10 * scale, y +  2.5 * scale},
-                   {x + 10 * scale + l * cos (AngLA), y + 2.5 * scale - l * sin (AngLA)},
-                   {x +              l * cos (AngLA), y + 2.5 * scale - l * sin (AngLA)}};
-    txPolygon (LA, 4); */
 
     double ShoulderWidth = 20 * scale;
     double ShoulderHigh = 5 * scale;
     double ArmWidth = 10 * scale;
     double ArmHigh = 90 * scale;
+
     double pi = 2 * asin (1);
-    /*if (LeftArmAngle < pi)
-        {
-        LeftArmAngle = abs (pi / 2 - LeftArmAngle);
-        }
-    else
-        {
-        LeftArmAngle = abs (pi * 1.5 - LeftArmAngle);
-        }*/
-
-
-    //LeftArmAngle = pi * 1.5;
-    cout << LeftArmAngle << ' ' << cos (LeftArmAngle);
 
     double ShoulderCentreX = ShoulderLeftPointX + ShoulderWidth / 2;
     double ShoulderCentreY = ShoulderLeftPointY + ShoulderHigh / 2;
 
-    txRectangle (ShoulderLeftPointX,                 ShoulderLeftPointY,
-                 ShoulderLeftPointX + ShoulderWidth, ShoulderLeftPointY +  ShoulderHigh);
+    txRectangle (ShoulderCentreX,                     ShoulderLeftPointY,
+                 ShoulderCentreX + ShoulderWidth / 2, ShoulderLeftPointY +  ShoulderWidth);
 
     txCircle (ShoulderCentreX,
-              ShoulderCentreY,
+              ShoulderLeftPointY + ShoulderWidth / 2,
               ShoulderWidth / 2);
+
     double ShoulderAngle = LeftArmAngle - pi / 2;
+
     double LeftArmTopLeftX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle);
     double LeftArmTopLeftY = ShoulderCentreY - ArmWidth / 2 * sin (ShoulderAngle);
     double LeftArmTopRightX = ShoulderCentreX + ArmWidth / 2 * cos (ShoulderAngle);
     double LeftArmTopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle);
 
-
-
     POINT LeftArm[4] = {{LeftArmTopLeftX,  LeftArmTopLeftY},
                         {LeftArmTopRightX, LeftArmTopRightY},
-                        {LeftArmTopRightX - ArmHigh * cos (LeftArmAngle), LeftArmTopRightY - ArmHigh * sin (LeftArmAngle)},
-                        {LeftArmTopLeftX  - ArmHigh * cos (LeftArmAngle), LeftArmTopLeftY  - ArmHigh * sin (LeftArmAngle)}};
+                        {LeftArmTopRightX + ArmHigh * cos (LeftArmAngle), LeftArmTopRightY - ArmHigh * sin (LeftArmAngle)},
+                        {LeftArmTopLeftX  + ArmHigh * cos (LeftArmAngle), LeftArmTopLeftY  - ArmHigh * sin (LeftArmAngle)}};
     txPolygon (LeftArm, 4);
 }
 
