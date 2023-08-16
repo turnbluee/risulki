@@ -61,10 +61,10 @@ int main()
 
     DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
-    /*DrawRobot (250, 370, 1,
+    DrawRobot (250, 370, 1,
         3.141592 * 1.5, 3.141592 * 1.5,
         3.141592 * 1.5, 3.141592 * 1.5,
-        RGB (200, 191, 223), TX_BLACK, TX_BLACK);*/
+        RGB (200, 191, 223), TX_BLACK, TX_BLACK);
 
     //DrawCigarette();
 
@@ -378,22 +378,6 @@ void DrawSmokeTree (double RootLeftPointX, double RootLeftPointY, double rad, in
     }
 }
 
-void DrawMan ()
-{
-    txSetColor (TX_BLACK, 3);
-    txSetFillColor (TX_WHITE);
-
-    txLine (420, 390, 420, 480);
-
-    txLine (460, 520, 420, 480);
-    txLine (380, 520, 420, 480);
-
-    txLine (420, 390, 380, 430);
-    txLine (420, 390, 460, 430);
-
-    txCircle (420, 370, 20);
-}
-
 void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, double AngLL, double AngRL,
     COLORREF robot, COLORREF eyes, COLORREF smile)
 {
@@ -414,19 +398,47 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, do
     DrawSmile (x, y, scale, smile);
 }
 
-void DrawLA (double x, double y, double scale, double AngLA, COLORREF robot)
+void DrawLA (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double LeftArmAngle, COLORREF robot)
 {
     txSetColor     (robot);
     txSetFillColor (robot);
 
-    double l = 87.5 * scale;
+    /*double l = 87.5 * scale;
     txRectangle (x, y, x + 20 * scale, y +  5 * scale);
 
     POINT LA[4] = {{x,              y +  2.5 * scale},
                    {x + 10 * scale, y +  2.5 * scale},
                    {x + 10 * scale + l * cos (AngLA), y + 2.5 * scale - l * sin (AngLA)},
                    {x +              l * cos (AngLA), y + 2.5 * scale - l * sin (AngLA)}};
-    txPolygon (LA, 4);
+    txPolygon (LA, 4); */
+
+    double ShoulderWidth = 20 * scale;
+    double ShoulderHigh = 5 * scale;
+    double ArmWidth = 30 * scale;
+    double ArmHigh = 90 * scale;
+    double pi = 2 * asin (1);
+    LeftArmAngle = pi * 1.5;
+    cout << LeftArmAngle << ' ' << cos (3 * asin (1));
+    double ShoulderCentreX = ShoulderLeftPointX + ShoulderWidth / 2;
+    double ShoulderCentreY = ShoulderLeftPointY + ShoulderHigh / 2;
+
+    txRectangle (ShoulderLeftPointX,                 ShoulderLeftPointY,
+                 ShoulderLeftPointX + ShoulderWidth, ShoulderLeftPointY +  ShoulderHigh);
+
+    txCircle (ShoulderCentreX,
+              ShoulderCentreY,
+              ShoulderWidth / 2);
+    double LeftArmTopLeftX = ShoulderCentreX - ShoulderWidth / 2 * cos (LeftArmAngle);
+    double LeftArmTopLeftY = ShoulderCentreY - ShoulderWidth / 2 * sin (LeftArmAngle);
+    double LeftArmTopRightX = ShoulderCentreX + ShoulderWidth / 2 * cos (LeftArmAngle);
+    double LeftArmTopRightY = ShoulderCentreY + ShoulderWidth / 2 * sin (LeftArmAngle);
+
+
+    POINT LeftArm[4] = {{LeftArmTopLeftX,  LeftArmTopLeftY},
+                        {LeftArmTopRightX, LeftArmTopRightY},
+                        {LeftArmTopRightX - ArmHigh * cos (LeftArmAngle), LeftArmTopRightY - ArmHigh * sin (LeftArmAngle)},
+                        {LeftArmTopLeftX  - ArmHigh * cos (LeftArmAngle), LeftArmTopLeftY  - ArmHigh * sin (LeftArmAngle)}};
+    txPolygon (LeftArm, 4);
 }
 
 void DrawRA (double x, double y, double scale, double AngRA, COLORREF robot)
