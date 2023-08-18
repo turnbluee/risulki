@@ -32,7 +32,7 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA,
 
 void DrawLeftArm (double x, double y, double scale, double AngLA, COLORREF robot);
 
-void DrawRA (double x, double y, double scale, double AngRA, COLORREF robot);
+void DrawRightArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double BodyWidth, double scale, double angle, COLORREF robot);
 
 void DrawLL (double x, double y, double scale, double AngLL, COLORREF robot);
 
@@ -62,7 +62,7 @@ int main()
     DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
     DrawRobot (250, 370, 1,
-        3.141592 * 1.75, 3.141592 * 1.5,
+        3.141592 * 1.5, 3.141592 * 0.3,
         3.141592 * 1.5, 3.141592 * 1.5,
         RGB (200, 191, 223), TX_BLACK, TX_BLACK);
     cout << cos (3.141592 * 1.25);
@@ -389,7 +389,7 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, do
 
     DrawLeftArm (x, y, scale, AngLA, robot);
 
-    DrawRA (x, y, scale, AngRA, robot);
+    DrawRightArm (x, y, 60 * scale, scale, AngRA, robot);
 
     txRectangle (x + 30 * scale, y, x + 70 * scale, y - 40 * scale); //
 
@@ -398,7 +398,7 @@ void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, do
     DrawSmile (x, y, scale, smile);
 }
 
-void DrawLeftArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double LeftArmAngle, COLORREF robot)
+void DrawLeftArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double angle, COLORREF robot)
 {
     txSetColor     (robot);
     txSetFillColor (robot);
@@ -420,55 +420,60 @@ void DrawLeftArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double s
               ShoulderLeftPointY + ShoulderWidth / 2,
               ShoulderWidth / 2);
 
-    double ShoulderAngle = LeftArmAngle;
+    double ShoulderAngle = angle;
 
-    if (ShoulderAngle > 1.5 * pi)
-        {
-        while (ShoulderAngle > pi * 0.5)
-            {
-            ShoulderAngle = abs(ShoulderAngle - 1.5 * pi);
-            }
-        }
-    else if (ShoulderAngle > pi)
-        {
-        while (ShoulderAngle > pi * 0.5)
-            {
-            ShoulderAngle = abs(ShoulderAngle - pi);
-            }
-        }/*
-    else if (ShoulderAngle < pi)
-        {
-        while (ShoulderAngle > pi * 0.5)
-            {
-            ShoulderAngle -= pi * 0.5;
-            }
-        } */
+    ShoulderCentreY = ShoulderLeftPointY + ShoulderWidth / 2;
 
-    double LeftArmTopLeftX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle);
-    double LeftArmTopLeftY = ShoulderCentreY - ArmWidth / 2 * sin (ShoulderAngle);
-    double LeftArmTopRightX = ShoulderCentreX + ArmWidth / 2 * cos (ShoulderAngle);
-    double LeftArmTopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle);
+    double TopLeftX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle + 0.5 * pi);
+    double TopLeftY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle + 0.5 * pi);
+    double TopRightX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle - 0.5 * pi);
+    double TopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle - 0.5 * pi);
 
-    POINT LeftArm[4] = {{LeftArmTopLeftX,  LeftArmTopLeftY},
-                        {LeftArmTopRightX, LeftArmTopRightY},
-                        {LeftArmTopRightX + ArmHigh * cos (LeftArmAngle), LeftArmTopRightY - ArmHigh * sin (LeftArmAngle)},
-                        {LeftArmTopLeftX  + ArmHigh * cos (LeftArmAngle), LeftArmTopLeftY  - ArmHigh * sin (LeftArmAngle)}};
-    txPolygon (LeftArm, 4);
+    POINT arm[4] = {{TopLeftX,  TopLeftY},
+                        {TopRightX, TopRightY},
+                        {TopRightX + ArmHigh * cos (angle), TopRightY - ArmHigh * sin (angle)},
+                        {TopLeftX  + ArmHigh * cos (angle), TopLeftY  - ArmHigh * sin (angle)}};
+    txPolygon (arm, 4);
 }
 
-void DrawRA (double x, double y, double scale, double AngRA, COLORREF robot)
+void DrawRightArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double BodyWidth, double scale, double angle, COLORREF robot)
 {
     txSetColor     (robot);
     txSetFillColor (robot);
 
-    double l = 87.5 * scale;
-    txRectangle (x + 80 * scale, y, x + 100 * scale, y + 5 * scale);
+    double ShoulderWidth = 20 * scale;
+    double ShoulderHigh = 5 * scale;
+    double ArmWidth = 10 * scale;
+    double ArmHigh = 90 * scale;
 
-    POINT RA[4] = {{x +  90 * scale, y + 2.5 * scale},
-                   {x + 100 * scale, y + 2.5 * scale},
-                   {x + 100 * scale + l * cos (AngRA), y + 2.5 * scale - l * sin (AngRA)},
-                   {x +  90 * scale + l * cos (AngRA), y + 2.5 * scale - l * sin (AngRA)}};
-    txPolygon (RA, 4);
+    ShoulderLeftPointX += BodyWidth + ShoulderWidth;
+
+    double pi = 2 * asin (1);
+
+    double ShoulderCentreX = ShoulderLeftPointX + ShoulderWidth / 2;
+    double ShoulderCentreY = ShoulderLeftPointY + ShoulderHigh / 2;
+
+    txRectangle (ShoulderCentreX,                     ShoulderLeftPointY,
+                 ShoulderCentreX - ShoulderWidth / 2, ShoulderLeftPointY +  ShoulderWidth);
+
+    txCircle (ShoulderCentreX,
+              ShoulderLeftPointY + ShoulderWidth / 2,
+              ShoulderWidth / 2);
+
+    double ShoulderAngle = angle;
+
+    ShoulderCentreY = ShoulderLeftPointY + ShoulderWidth / 2;
+
+    double TopLeftX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle + 0.5 * pi);
+    double TopLeftY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle + 0.5 * pi);
+    double TopRightX = ShoulderCentreX - ArmWidth / 2 * cos (ShoulderAngle - 0.5 * pi);
+    double TopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle - 0.5 * pi);
+
+    POINT arm[4] = {{TopLeftX,  TopLeftY},
+                        {TopRightX, TopRightY},
+                        {TopRightX + ArmHigh * cos (angle), TopRightY - ArmHigh * sin (angle)},
+                        {TopLeftX  + ArmHigh * cos (angle), TopLeftY  - ArmHigh * sin (angle)}};
+    txPolygon (arm, 4);
 }
 
 void DrawLL (double x, double y, double scale, double AngLL, COLORREF robot)
