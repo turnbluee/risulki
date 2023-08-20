@@ -34,13 +34,13 @@ void DrawLeftArm (double x, double y, double scale, double AngLA, COLORREF robot
 
 void DrawRightArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double BodyWidth, double scale, double angle, COLORREF robot);
 
-void DrawLL (double x, double y, double scale, double AngLL, COLORREF robot);
+void DrawLeftLeg (double FootLeftPointX, double FootTopPointY, double scale, double angle, COLORREF robot);
 
-void DrawRL (double x, double y, double scale, double AngRL, COLORREF robot);
+void DrawRightLeg (double x, double y, double scale, double AngRL, COLORREF robot);
 
-void DrawEyes (double x, double y, double scale, COLORREF eyes);
+void DrawEyes (double HeadCentreX, double EyeLevelY, double HeadWidth, double scale, COLORREF eyes);
 
-void DrawSmile (double x, double y, double scale, COLORREF smile);
+void DrawSmile (double HeadCentreX, double LipsLevelY, double HeadWidth, double scale, COLORREF smile);
 
 void DrawMan ();
 
@@ -56,24 +56,23 @@ int main()
 
     DrawMountains (10, 205, 423, 745, RGB (255, 255, 255), TX_GRAY);
 
-    DrawHouse (540, 320, 1, 120 * 3.141592 / 180,
+    double pi = 2 * asin (1);
+
+    DrawHouse (540, 320, 1, 120 * pi / 180,
         RGB (185, 122, 87), RGB (103, 65, 44), TX_GRAY, TX_BLACK);
 
     DrawSmokeTree (0, 525, 60, 12, 1, RGB (185, 122, 87), TX_GREEN);
 
     DrawRobot (250, 370, 1,
-        3.141592 * 1.5, 3.141592 * 0.3,
-        3.141592 * 1.5, 3.141592 * 1.5,
+        pi * 1.5, pi * 0.3,
+        pi * 1.5, pi * 1.5,
         RGB (200, 191, 223), TX_BLACK, TX_BLACK);
-    cout << cos (3.141592 * 1.25);
+    cout << cos (pi * 1.25);
     //DrawCigarette();
 
     return 0;
     }
 
-//                                                                        ,
-//                                       ,
-//          RadiusStop,
 void txSunset (double x, double y, double radius, double red, double green, double blue)
     {
     int RadiusStop = 350, i = 0;
@@ -354,7 +353,7 @@ void DrawSmokeTree (double RootLeftPointX, double RootLeftPointY, double rad, in
     double TrunkWidth = 60 * scale;
     double TrunkHigh = 325 * scale;
 
-    double TrunkCentreX = RootLeftPointX + RootWidth / 2 * scale;
+    double TrunkCentreX = RootLeftPointX + RootWidth / 2;
 
     double TrunkBottom = RootLeftPointY;
     double TrunkTop = TrunkBottom - TrunkHigh * scale;
@@ -364,7 +363,8 @@ void DrawSmokeTree (double RootLeftPointX, double RootLeftPointY, double rad, in
 
     txSetColor (crown);
     txSetFillColor (crown);
-    double pi = 3.131592;
+
+    double pi = 2 * asin (1);
     double CrownAngle = 2 * pi / density;
 
     txCircle (TrunkCentreX, TrunkTop, rad);
@@ -378,24 +378,48 @@ void DrawSmokeTree (double RootLeftPointX, double RootLeftPointY, double rad, in
     }
 }
 
-void DrawRobot (double x, double y, double scale, double AngLA, double AngRA, double AngLL, double AngRL,
+void DrawRobot (double LeftShoulderTopLeftX, double LeftShoulderTopLeftY, double scale,
+    double AngleLeftArm, double AngleRightArm, double AngleLeftLeg, double AngleRightLeg,
     COLORREF robot, COLORREF eyes, COLORREF smile)
 {
-    DrawLL (x, y, scale, AngLL, robot);
+    double ShoulderWidth = 20 * scale;
+    double LegHigh = 90 * scale;
+    double BodyHigh = 100 * scale;
+    double LegWidth = 10 * scale;
+    double FootWidth = 20 * scale;
 
-    DrawRL (x, y, scale, AngRL, robot);
+    DrawLeftLeg (LeftShoulderTopLeftX + ShoulderWidth + FootWidth - LegWidth,
+                 LeftShoulderTopLeftY + BodyHigh,
+                 scale, AngleLeftLeg, robot);
 
-    txRectangle (x + 20 * scale, y + 100 * scale, x + 80  * scale, y); //
+    double BodyWidth = 60 * scale;
 
-    DrawLeftArm (x, y, scale, AngLA, robot);
+    DrawRightLeg (LeftShoulderTopLeftX + ShoulderWidth + BodyWidth - FootWidth,
+                  LeftShoulderTopLeftY + BodyHigh,
+                  scale, AngleRightLeg, robot);
 
-    DrawRightArm (x, y, 60 * scale, scale, AngRA, robot);
+    txRectangle (LeftShoulderTopLeftX + ShoulderWidth,             LeftShoulderTopLeftY,
+                 LeftShoulderTopLeftX + ShoulderWidth + BodyWidth, LeftShoulderTopLeftY + BodyHigh); //
 
-    txRectangle (x + 30 * scale, y, x + 70 * scale, y - 40 * scale); //
+    DrawLeftArm (LeftShoulderTopLeftX, LeftShoulderTopLeftY, scale, AngleLeftArm, robot);
 
-    DrawEyes (x, y, scale, eyes);
+    DrawRightArm (LeftShoulderTopLeftX + ShoulderWidth + BodyWidth,
+                  LeftShoulderTopLeftY,
+                  BodyWidth, scale, AngleRightArm, robot);
 
-    DrawSmile (x, y, scale, smile);
+    double HeadWidth = 40 * scale;
+    double HeadHigh = 40 * scale;
+
+    txRectangle (LeftShoulderTopLeftX + ShoulderWidth + BodyWidth / 2 - HeadWidth / 2, LeftShoulderTopLeftY,
+                 LeftShoulderTopLeftX + ShoulderWidth + BodyWidth / 2 + HeadWidth / 2, LeftShoulderTopLeftY - HeadHigh); //
+
+    DrawEyes (LeftShoulderTopLeftX + ShoulderWidth + BodyWidth / 2,
+              LeftShoulderTopLeftY - HeadHigh * 0.75,
+              HeadWidth, scale, eyes);
+
+    DrawSmile (LeftShoulderTopLeftX + ShoulderWidth + BodyWidth / 2,
+               LeftShoulderTopLeftY - HeadHigh * 0.35,
+               HeadWidth, scale, smile);
 }
 
 void DrawLeftArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double scale, double angle, COLORREF robot)
@@ -446,8 +470,6 @@ void DrawRightArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double 
     double ArmWidth = 10 * scale;
     double ArmHigh = 90 * scale;
 
-    ShoulderLeftPointX += BodyWidth + ShoulderWidth;
-
     double pi = 2 * asin (1);
 
     double ShoulderCentreX = ShoulderLeftPointX + ShoulderWidth / 2;
@@ -470,61 +492,101 @@ void DrawRightArm (double ShoulderLeftPointX, double ShoulderLeftPointY, double 
     double TopRightY = ShoulderCentreY + ArmWidth / 2 * sin (ShoulderAngle - 0.5 * pi);
 
     POINT arm[4] = {{TopLeftX,  TopLeftY},
-                        {TopRightX, TopRightY},
-                        {TopRightX + ArmHigh * cos (angle), TopRightY - ArmHigh * sin (angle)},
-                        {TopLeftX  + ArmHigh * cos (angle), TopLeftY  - ArmHigh * sin (angle)}};
+                    {TopRightX, TopRightY},
+                    {TopRightX + ArmHigh * cos (angle), TopRightY - ArmHigh * sin (angle)},
+                    {TopLeftX  + ArmHigh * cos (angle), TopLeftY  - ArmHigh * sin (angle)}};
     txPolygon (arm, 4);
 }
 
-void DrawLL (double x, double y, double scale, double AngLL, COLORREF robot)
+void DrawLeftLeg (double LegLeftPointX, double LegTopPointY, double scale, double angle, COLORREF robot)
 {
     txSetColor     (robot);
     txSetFillColor (robot);
 
-    double l = 55 * scale;
-    txRectangle (x + 40 * scale + l * cos (AngLL), y + 100 * scale - l * sin (AngLL),
-                 x + 10 * scale + l * cos (AngLL), y + 105 * scale - l * sin (AngLL));
+    double LegWidth = 10 * scale;
+    double LegHigh = 60 * scale;
 
-    POINT LL[4] = {{x + 40 * scale,                   y + 100 * scale},
-                   {x + 40 * scale + l * cos (AngLL), y + 100 * scale - l * sin (AngLL)},
-                   {x + 30 * scale + l * cos (AngLL), y + 100 * scale - l * sin (AngLL)},
-                   {x + 30 * scale,                   y + 100 * scale}};
-    txPolygon (LL, 4);
+    double pi = 2 * asin (1);
+
+    double LegCentreX = LegLeftPointX + LegWidth / 2;
+    double LegCentreY = LegTopPointY + LegWidth / 2;
+
+
+    txCircle (LegCentreX,
+              LegTopPointY,
+              LegWidth);
+
+    double TopLeftX = LegCentreX - LegWidth / 2 * cos (angle + 0.5 * pi);
+    double TopLeftY = LegCentreY + LegWidth / 2 * sin (angle + 0.5 * pi);
+    double TopRightX = LegCentreX - LegWidth / 2 * cos (angle - 0.5 * pi);
+    double TopRightY = LegCentreY + LegWidth / 2 * sin (angle - 0.5 * pi);
+
+    POINT Leg[4] = {{TopLeftX,  TopLeftY},
+                    {TopRightX, TopRightY},
+                    {TopRightX + LegHigh * cos (angle), TopRightY - LegHigh * sin (angle)},
+                    {TopLeftX  + LegHigh * cos (angle), TopLeftY  - LegHigh * sin (angle)}};
+    txPolygon (Leg, 4);
 }
 
-void DrawRL (double x, double y, double scale, double AngRL, COLORREF robot)
+void DrawRightLeg (double LegLeftPointX, double LegTopPointY, double scale, double angle, COLORREF robot)
 {
-    txSetColor     (robot);
+   txSetColor     (robot);
     txSetFillColor (robot);
 
-    double l = 55 * scale;
-    txRectangle (x + 90 * scale + l * cos (AngRL), y + 100 * scale - l * sin (AngRL),
-                 x + 60 * scale + l * cos (AngRL), y + 105 * scale - l * sin (AngRL)); //
+    double LegWidth = 10 * scale;
+    double LegHigh = 60 * scale;
 
-    POINT RL[4] = {{x + 70 * scale,                   y + 100 * scale},
-                   {x + 70 * scale + l * cos (AngRL), y + 100 * scale - l * sin (AngRL)},
-                   {x + 60 * scale + l * cos (AngRL), y + 100 * scale - l * sin (AngRL)},
-                   {x + 60 * scale,                   y + 100 * scale}};
-    txPolygon (RL, 4);
+    double pi = 2 * asin (1);
+
+    double LegCentreX = LegLeftPointX + LegWidth / 2;
+    double LegCentreY = LegTopPointY + LegWidth / 2;
+
+
+    txCircle (LegCentreX,
+              LegTopPointY,
+              LegWidth);
+
+    double TopLeftX = LegCentreX - LegWidth / 2 * cos (angle + 0.5 * pi);
+    double TopLeftY = LegCentreY + LegWidth / 2 * sin (angle + 0.5 * pi);
+    double TopRightX = LegCentreX - LegWidth / 2 * cos (angle - 0.5 * pi);
+    double TopRightY = LegCentreY + LegWidth / 2 * sin (angle - 0.5 * pi);
+
+    POINT Leg[4] = {{TopLeftX,  TopLeftY},
+                    {TopRightX, TopRightY},
+                    {TopRightX + LegHigh * cos (angle), TopRightY - LegHigh * sin (angle)},
+                    {TopLeftX  + LegHigh * cos (angle), TopLeftY  - LegHigh * sin (angle)}};
+    txPolygon (Leg, 4);
 }
 
-void DrawEyes (double x, double y, double scale, COLORREF eyes)
+void DrawEyes (double HeadCentreX, double EyeLevelY, double HeadWidth, double scale, COLORREF eyes)
 {
     txSetColor     (eyes);
     txSetFillColor (eyes);
 
-    txRectangle (x + 40 * scale, y - 30 * scale, x + 45 * scale, y - 25 * scale);
-    txRectangle (x + 60 * scale, y - 30 * scale, x + 55 * scale, y - 25 * scale);
+    double EyeSize = 5 * scale;
+
+    txRectangle (HeadCentreX - HeadWidth * 0.33,           EyeLevelY,
+                 HeadCentreX - HeadWidth * 0.33 + EyeSize, EyeLevelY + EyeSize);
+
+    txRectangle (HeadCentreX + HeadWidth * 0.33,           EyeLevelY,
+                 HeadCentreX + HeadWidth * 0.33 - EyeSize, EyeLevelY + EyeSize);
 }
 
-void DrawSmile (double x, double y, double scale, COLORREF smile)
+void DrawSmile (double HeadCentreX, double LipsLevelY, double HeadWidth, double scale, COLORREF smile)
 {
     txSetColor     (smile);
     txSetFillColor (smile);
 
-    txLine (x + 45 * scale, y - 14 * scale, x + 45 * scale, y - 10 * scale);
-    txLine (x + 45 * scale, y - 10 * scale, x + 55 * scale, y - 10 * scale);
-    txLine (x + 55 * scale, y - 10 * scale, x + 55 * scale, y - 15 * scale);
+    double SmileHigh = 5 * scale;
+
+    txLine (HeadCentreX - HeadWidth * 0.25, LipsLevelY,
+            HeadCentreX + HeadWidth * 0.25, LipsLevelY);
+
+    txLine (HeadCentreX - HeadWidth * 0.25, LipsLevelY,
+            HeadCentreX - HeadWidth * 0.25, LipsLevelY - SmileHigh);
+
+    txLine (HeadCentreX + HeadWidth * 0.25, LipsLevelY,
+            HeadCentreX + HeadWidth * 0.25, LipsLevelY - SmileHigh);
 }
 
 void DrawCigarette()
